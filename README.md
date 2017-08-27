@@ -16,7 +16,7 @@ All contributions are welcome!!
 
 **3rd party libraries**:  
 FreeRTOS: GPLv2  
-Mongoose Networking Libary: GPLv2 
+Mongoose Networking Libary: GPLv2  
 ESF-IDF: GPLv2  
   
 **Custom bits**:  
