@@ -124,8 +124,8 @@ void mongoose_event_handler(struct mg_connection *nc, int ev, void *evData) {
 	case MG_EV_POLL: {
 		MG_WS_MESSAGE p;
 		if(xQueueReceive(broardcast_evt_queue, &p, 0) == pdPASS) {
-			ESP_LOGD( tag, "MG_EV_POLL broardcast");
 			mg_broadcast_message(nc, p.message, p.message_len);
+			free(p.message);
 		}
 		break;
 		}

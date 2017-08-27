@@ -24,7 +24,7 @@ char *gen_response( int relays[]);
 // relay task handle
 // ------------------------------------------
 void relay_gpio_task(void *pvParameter) {
-	MG_WS_MESSAGE m = {.message = NULL, .message_len = 0, .action = -1};
+	MG_WS_MESSAGE m = { .message = NULL, .message_len = 0, .action = -1};
 	const TickType_t xDelay = 2000 / portTICK_PERIOD_MS;
 	int relays[MAX_RELAYS] ={0,0,0,0,0,0,0,0};
 
@@ -41,8 +41,6 @@ void relay_gpio_task(void *pvParameter) {
 				relays[no] = val;
 				// TODO: send mess to gpio task
 			}
-			free(m.message);
-
 		}
 		if( m.message != NULL) {
 			m.message = gen_response( relays);

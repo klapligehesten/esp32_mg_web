@@ -29,7 +29,7 @@ void wifi_start_ap( P_WIFI_CONF wifi_conf);
 void wifi_start_open_ap();
 void init_wifi();
 
-void wifi_start() {
+void wifi_start_task() {
 	init_wifi();
 	P_WIFI_CONF wifi_conf;
 	wifi_conf = config_get_wifi_conf();

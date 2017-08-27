@@ -2,6 +2,6 @@
 #define __WIFI_TASKS__
 
 // --- public prototypes ---
-void wifi_start();
+void wifi_start_task();
 
 #endif

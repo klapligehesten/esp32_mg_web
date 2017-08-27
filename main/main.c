@@ -40,7 +40,7 @@ int app_main(void) {
 	fatfs_mount();
 	gpio_start_task();
 	relay_gpio_start_task();
-	wifi_start();
+	wifi_start_task();
 //	utils_show_chip_info();
 	return 0;
 

@@ -123,7 +123,7 @@ int config_save_wifi_conf( MG_WS_MESSAGE *m, char *resp) {
 		if ((rc = flash_set_key(CONFIG_OPEN_WIFI_NOT_ENABLED, "{\"status\":\"no open config enabled\"}")) == ESP_OK) {
 			sprintf(resp, "{\"status\":\"Configuration saved...Rebooting\"}");
 
-			m->message = resp;
+			m->message = strdup(resp);
 			m->message_len = strlen(resp);
 			// Send to mg_task for processing in MG_EV_POLL event
 			xQueueSendToBack( broardcast_evt_queue, m, 10 );
@@ -153,7 +153,7 @@ int config_list_del_files(MG_WS_MESSAGE *m, char *resp) {
 	else
 		sprintf(resp, "{\"status\":\"Files listed on console\"}");
 
-	m->message = resp;
+	m->message = strdup(resp);
 	m->message_len = strlen(resp);
 	// Send to mg_task for processing in MG_EV_POLL event
 	xQueueSendToBack( broardcast_evt_queue, m, 10 );
