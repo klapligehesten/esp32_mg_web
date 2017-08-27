@@ -22,8 +22,6 @@ void process_websocket_frame( struct mg_connection *nc, struct websocket_message
 // website processing from flash fat file system
 mg_process_http_request_type mg_process_http_request_ptr;
 
-
-
 static char *tag = "mg_task";
 static int mg_cont;
 static struct mg_serve_http_opts s_http_server_opts;
@@ -70,7 +68,6 @@ void process_websocket_frame( struct mg_connection *nc, struct websocket_message
 	ESP_LOGD(tag, "WS_EV_WEBSOCKET_FRAME");
 	MG_WS_MESSAGE m;
 
-	m.nc = nc;
 	m.message = strndup( (const char *)evData->data, evData->size);
 	m.flags = evData->flags;
 	m.message_len = evData->size;
@@ -128,7 +125,7 @@ void mongoose_event_handler(struct mg_connection *nc, int ev, void *evData) {
 		MG_WS_MESSAGE p;
 		if(xQueueReceive(broardcast_evt_queue, &p, 0) == pdPASS) {
 			ESP_LOGD( tag, "MG_EV_POLL broardcast");
-			mg_broadcast_message(p.nc, p.message, p.message_len);
+			mg_broadcast_message(nc, p.message, p.message_len);
 		}
 		break;
 		}
@@ -140,7 +137,8 @@ void mongoose_event_handler(struct mg_connection *nc, int ev, void *evData) {
 // ------------------------------------------
 void mg_broadcast_message( struct mg_connection *nc, char *message, int len) {
 	struct mg_connection *c;
-
+	// Instead of mg_next(.. i've rewritten this to show
+	// witch line 'panics' if sothing goes wrong
 	c = nc->mgr->active_connections;
 	while(1){
 		mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, message, len);
@@ -179,7 +177,9 @@ void mg_start_task( mg_process_http_request_type func) {
 	mg_process_http_request_ptr = func;
 	memset(&s_http_server_opts, 0, sizeof(s_http_server_opts));
 	s_http_server_opts.document_root = base_path;
-	s_http_server_opts.index_files = "/index.html";
+	// INVESTIGATE: 2 below lines does nothong on fatfs ?????
+	s_http_server_opts.index_files = "index.html";
+	s_http_server_opts.enable_directory_listing = "yes";
 
 	config_start_task();
 	broardcast_evt_queue = xQueueCreate(10, sizeof(MG_WS_MESSAGE));

@@ -20,35 +20,11 @@ extern xQueueHandle broardcast_evt_queue;
 // Private prototypes
 char *gen_response( int relays[]);
 
-
-// ---------------------------------
-// Mongoose event handler. Dont work
-// ---------------------------------
-/*
-#define MG_CTL_MSG_MESSAGE_SIZE 8192
-struct ctl_msg {
-  mg_event_handler_t callback;
-  char message[MG_CTL_MSG_MESSAGE_SIZE];
-};
-
-void relay_event_handler( struct mg_connection *nc, int ev, void *evData) {
-	struct ctl_msg *x;
-	switch (ev) {
-	case MG_EV_POLL:
- 		x = (struct ctl_msg *) evData;
-		ESP_LOGD( tag, "MG_EV_POLL %s", x->message);
-		break;
-	default:
-		ESP_LOGD( tag, "default %d", ev);
-		break;
-	}
-}
-*/
 // ------------------------------------------
 // relay task handle
 // ------------------------------------------
 void relay_gpio_task(void *pvParameter) {
-	MG_WS_MESSAGE m = {.nc = NULL, .message = NULL, .message_len = 0, .action = -1};
+	MG_WS_MESSAGE m = {.message = NULL, .message_len = 0, .action = -1};
 	const TickType_t xDelay = 2000 / portTICK_PERIOD_MS;
 	int relays[MAX_RELAYS] ={0,0,0,0,0,0,0,0};
 
@@ -68,25 +44,18 @@ void relay_gpio_task(void *pvParameter) {
 			free(m.message);
 
 		}
-		if( m.nc != NULL) {
+		if( m.message != NULL) {
 			m.message = gen_response( relays);
 			m.message_len = strlen(m.message);
-
 			// Send to mg_task for prcessing in MG_EV_POLL event
 			xQueueSendToBack( broardcast_evt_queue, &m, 10 );
-
-			// calling ouer own broardcast partially works,
-			// but 'panics' frequently because mongoose is'nt reintrant
-			// mg_broadcast_message( m.nc, m.message, m.message_len);
-
-			// mongoose broardcast don't work
-			// mg_broadcast(m.nc->mgr, relay_event_handler, m.message, m.message_len);
-
-
 		}
 	}
 }
 
+// ------------------------------------------
+// Generate relay json response
+// ------------------------------------------
 char *gen_response( int relays[]) {
 	int i;
 	char tmp_buf[255];

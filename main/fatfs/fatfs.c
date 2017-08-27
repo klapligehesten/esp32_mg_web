@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <dirent.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 #include <esp_err.h>
 #include <esp_log.h>
 #include <esp_vfs_fat.h>
-#include <stdbool.h>
 #include <wear_levelling.h>
 
 #include "fatfs.h"

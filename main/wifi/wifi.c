@@ -1,3 +1,5 @@
+#include "wifi.h"
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -14,7 +16,6 @@
 #include <config_task.h>
 #include <flash.h>
 #include <mg_task.h>
-#include "wifi_task.h"
 
 static char *tag = "wifi_tasks";
 
@@ -23,32 +24,32 @@ mg_process_http_request_type ap_process_req_type;
 
 // internal prototypes
 esp_err_t wifi_event_handler(void *ctx, system_event_t *event);
-void wifi_start_task_client( P_WIFI_CONF wifi_conf);
-void wifi_start_task_ap( P_WIFI_CONF wifi_conf);
-void wifi_start_task_open_ap();
+void wifi_start_client( P_WIFI_CONF wifi_conf);
+void wifi_start_ap( P_WIFI_CONF wifi_conf);
+void wifi_start_open_ap();
 void init_wifi();
 
-void wifi_start_task() {
+void wifi_start() {
 	init_wifi();
 	P_WIFI_CONF wifi_conf;
 	wifi_conf = config_get_wifi_conf();
 	switch( flash_key_exists(CONFIG_OPEN_WIFI_NOT_ENABLED)) {
 	case ESP_ERR_NVS_NOT_FOUND:
 		ESP_LOGD(tag, "config_get_conf_enabled() = ESP_ERR_NVS_NOT_FOUND");
-		wifi_start_task_open_ap();
+		wifi_start_open_ap();
 		break;
 	case ESP_OK:
 		ESP_LOGD(tag, "config_get_conf_enabled() = ESP_OK");
 		if( wifi_conf != NULL) {
 			if( wifi_conf->cli.enabled == 1)
-				wifi_start_task_client( wifi_conf);
+				wifi_start_client( wifi_conf);
 			else if( wifi_conf->ap.enabled == 1)
-				wifi_start_task_ap(wifi_conf);
+				wifi_start_ap(wifi_conf);
 			else
-				wifi_start_task_open_ap();
+				wifi_start_open_ap();
 		}
 		else {
-			wifi_start_task_open_ap();
+			wifi_start_open_ap();
 		}
 		break;
 	}
@@ -62,7 +63,7 @@ void init_wifi() {
 	ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
 }
 
-void wifi_start_task_client( P_WIFI_CONF wifi_conf) {
+void wifi_start_client( P_WIFI_CONF wifi_conf) {
 	ESP_LOGD(tag, "Starting a wifi client");
 	ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
 	wifi_config_t config;
@@ -75,7 +76,7 @@ void wifi_start_task_client( P_WIFI_CONF wifi_conf) {
 	ESP_ERROR_CHECK(esp_wifi_connect());
 }
 
-void wifi_start_task_open_ap() {
+void wifi_start_open_ap() {
 	ESP_LOGD(tag, "Starting a open wifi access point ...");
 	ap_process_req_type = mg_process_http_request_config;
 	ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
@@ -94,7 +95,7 @@ void wifi_start_task_open_ap() {
 	ESP_ERROR_CHECK(esp_wifi_start());
 }
 
-void wifi_start_task_ap( P_WIFI_CONF wifi_conf) {
+void wifi_start_ap( P_WIFI_CONF wifi_conf) {
 	/*
 	 * TODO: implement ip assignment
 		tcpip_adapter_dhcpc_stop(TCPIP_ADAPTER_IF_AP);

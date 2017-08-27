@@ -11,7 +11,6 @@ typedef void (*mg_process_http_request_type)(struct mg_connection *, struct http
 #define MG_ACTION_RELAY_GPIO_TOGGLE 3
 
 typedef struct {
-	struct mg_connection *nc;
 	int  flags;
 	char *message;
 	int  message_len;

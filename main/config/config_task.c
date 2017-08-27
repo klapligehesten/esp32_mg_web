@@ -108,10 +108,6 @@ void config_task(void *pvParameter) {
 			// Send to mg_task for processing in MG_EV_POLL event
 			xQueueSendToBack( broardcast_evt_queue, &m, 10 );
 
-			// calling ouer own broardcast partially works,
-			// but 'panics' frequently because mongoose is'nt reintrant
-			// mg_broadcast_message( m.nc, resp, strlen( resp));
-
 		}
 	}
 }
@@ -126,14 +122,11 @@ int config_save_wifi_conf( MG_WS_MESSAGE *m, char *resp) {
 	if ((rc = flash_set_key(CONFIG_WIFI_PARAMETERS, m->message)) == ESP_OK) {
 		if ((rc = flash_set_key(CONFIG_OPEN_WIFI_NOT_ENABLED, "{\"status\":\"no open config enabled\"}")) == ESP_OK) {
 			sprintf(resp, "{\"status\":\"Configuration saved...Rebooting\"}");
+
 			m->message = resp;
 			m->message_len = strlen(resp);
 			// Send to mg_task for processing in MG_EV_POLL event
 			xQueueSendToBack( broardcast_evt_queue, m, 10 );
-
-			// calling ouer own broardcast partially works,
-			// but 'panics' frequently because mongoose is'nt reintrant
-			// mg_broadcast_message(m->nc, resp, strlen(resp));
 
 			// Wait a few seconds for the ws frame to be send
 			vTaskDelay(xDelay);
@@ -159,14 +152,11 @@ int config_list_del_files(MG_WS_MESSAGE *m, char *resp) {
 		sprintf(resp, "{\"status\":\"All files removed!!!!\"}");
 	else
 		sprintf(resp, "{\"status\":\"Files listed on console\"}");
+
 	m->message = resp;
 	m->message_len = strlen(resp);
 	// Send to mg_task for processing in MG_EV_POLL event
 	xQueueSendToBack( broardcast_evt_queue, m, 10 );
-
-	// calling ouer own broardcast partially works,
-	// but 'panics' frequently because mongoose is'nt reintrant
-	// mg_broadcast_message(m->nc, resp, strlen(resp));
 
 	return ESP_OK;
 }

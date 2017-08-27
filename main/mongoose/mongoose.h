@@ -301,7 +301,7 @@ typedef struct _stati64 cs_stat_t;
 #endif
 
 #ifndef MG_ENABLE_BROADCAST
-#define MG_ENABLE_BROADCAST 1
+#define MG_ENABLE_BROADCAST 0
 #endif
 
 #ifndef MG_ENABLE_DIRECTORY_LISTING
@@ -440,7 +440,7 @@ typedef struct stat cs_stat_t;
 #endif
 
 #ifndef MG_ENABLE_BROADCAST
-#define MG_ENABLE_BROADCAST 1
+#define MG_ENABLE_BROADCAST 0
 #endif
 
 #ifndef MG_ENABLE_DIRECTORY_LISTING
@@ -2825,7 +2825,7 @@ struct {								\
 #endif
 
 #ifndef MG_ENABLE_BROADCAST
-#define MG_ENABLE_BROADCAST 1
+#define MG_ENABLE_BROADCAST 0
 #endif
 
 #ifndef MG_ENABLE_COAP

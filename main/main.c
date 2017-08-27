@@ -1,10 +1,9 @@
 /*
  ============================================================================
- Name        : test.c
- Author      : HP
- Version     :
- Copyright   : Your copyright notice
- Description : Hello World in C, Ansi-style
+ Name        : main.c
+ Author      : Hans Peter Schultz / hp@hpes.dk
+ Version     : 0.9b
+ Description : esp32 starter project
  ============================================================================
  */
 
@@ -13,17 +12,12 @@
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
 #include <freertos/semphr.h>
-
-#include <nvs_flash.h>
-#include <driver/gpio.h>
 #include <esp_system.h>
-#include <esp_spi_flash.h>
-#include <esp_event_loop.h>
 
 #include "sdkconfig.h"
 
-#include "wifi_task.h"
-#include "mongoose.h"
+#include <nvs_flash.h>
+#include <wifi.h>
 #include "mg_task.h"
 #include "fatfs.h"
 #include "utils.h"
@@ -46,7 +40,7 @@ int app_main(void) {
 	fatfs_mount();
 	gpio_start_task();
 	relay_gpio_start_task();
-	wifi_start_task();
+	wifi_start();
 //	utils_show_chip_info();
 	return 0;
 
