@@ -12,7 +12,7 @@ It's in a running state, but needs review and validations.
 7. Test the app in a browser: http://<esp_ip_adr>/relay.html
 8. Enjoy :-)
 
-All contributions are welcomme!!
+All contributions are welcome!!
 
 **3rd party libraries**:  
 FreeRTOS: GPLv2  
