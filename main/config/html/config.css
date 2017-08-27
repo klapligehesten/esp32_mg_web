@@ -1,0 +1,28 @@
+*, *:before, *:after { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; }
+
+html { font-family: Helvetica, Arial, sans-serif; font-size: 100%; background: #333;}
+
+#page-wrapper { width: 425px; background: #FFF; padding: 1em; margin: 1em auto; 
+	border-top: 5px solid #41ff41; box-shadow: 0 2px 10px rgba(0,0,0,0.8);}
+
+h3 {margin-top: 0; text-align: center;}
+
+#status { font-size: 0.9rem; margin-bottom: 1rem;}
+
+.open { color: green;}
+
+.closed { color: red;}
+
+.received {}
+
+.sent { background-color: #F7F7F7;}
+
+text {autocorrect:off; autocapitalize:none }
+
+#message-form { margin-top: 1.5rem; }
+button,input[type="file"] { display: inline-block; border-radius: 3px; border: none; font-size: 0.9rem; padding: 0.6rem 1em;
+	color: white; margin: 0 0.25rem; text-align: center; background: #BABABA; border-bottom: 1px solid #999;}
+
+button[type="submit"] { background: #44be41; border-bottom: 1px solid #41ff41;}
+
+button:hover { opacity: 0.75; cursor: pointer;}

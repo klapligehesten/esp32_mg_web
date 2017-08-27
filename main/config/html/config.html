@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<!-- meta http-equiv="Content-Security-Policy" content="connect-src 'self'" -->
+	<title>Config</title>
+  	<link rel="stylesheet" href="config.css">
+  	<script src="config.js"></script>
+</head>
+<body>
+	<div id="page-wrapper">
+		<h3>Config</h3>
+		<form id="config-form"action="#" method="post">
+		<hr>
+		<table>
+			<tbody>
+			<tr><td>Client enabled:</td><td><input class="cbox cli" id="enabled_cli" type="checkbox" checked="checked"></td></tr>
+			<tr><td>WiFi SSID:</td><td><input type="text" id="ssid_cli" required/></td></tr>
+			<tr><td>WiFi Password:</td><td><input type="password" id="passwd_cli" pattern=".{8,12}" required title="8 to 12 characters"/></td></tr>
+			</tbody>
+		</table>
+		<hr>
+		<table>
+			<tbody>
+			<tr><td>AP enabled:</td><td><input class="cbox ap" id="enabled_ap" type="checkbox"></td></tr>
+			<tr><td>SSID:</td><td><input type="text" value="ESP32_AP" id="ssid_ap" /></td></tr>
+			<tr><td>Password:</td><td><input type="password" value="" id="passwd_ap" pattern=".{8,12}" required title="8 to 12 characters"/></td></tr>
+			<tr><td>IPv4 Address:</td><td><input type="text" value="192.168.4.1" id="ipadr_ap" /></td></tr>
+			<tr><td>Default Gateway:</td><td><input type="text" value="192.168.4.1" id="gateway_ap" /></td></tr>
+			<tr><td>Netmask:</td><td><input type="text" value="255.255.255.0" id="netmask_ap" /></td></tr>
+			</tbody>
+		</table>
+		<hr>
+		<table>
+			<tbody>
+			<tr><td>Remove files:</td><td><input id="del_fat_files" type="checkbox"></td>
+			<td><button type="button" id="list_rem">List/Remove</button></td></tr>
+			</tbody>
+		</table>
+		<hr>
+	 	<p><button type="submit">Save and reboot</button></p>
+		</form>
+		<hr>
+		<ul id="messages"></ul>
+	</div>
+</body>
+</html>
