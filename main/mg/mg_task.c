@@ -37,7 +37,7 @@ xQueueHandle broardcast_evt_queue;
 // Process MG_EV_HTTP_REQUEST event
 // ------------------------------------
 void mg_process_http_request( struct mg_connection* nc, struct http_message* message) {
-	ESP_LOGI(tag, "Enter process_http_request:%.*s", message->uri.len, message->uri.p);
+	// ESP_LOGI(tag, "Enter process_http_request:%.*s", message->uri.len, message->uri.p);
 	mg_serve_http(nc, message, s_http_server_opts);
 }
 
@@ -45,7 +45,7 @@ void mg_process_http_request( struct mg_connection* nc, struct http_message* mes
 // Process config MG_EV_HTTP_REQUEST
 // ------------------------------------
 void mg_process_http_request_config( struct mg_connection* nc, struct http_message* message) {
-	ESP_LOGI(tag, "Enter process_http_request_config");
+	// ESP_LOGI(tag, "Enter process_http_request_config");
 	if (mg_vcmp(&message->uri, "/") == 0) {
 		mg_send_head(nc, 200, config_html_len, "Content-Type: text/html");
 		mg_send(nc, config_html, config_html_len);

@@ -29,3 +29,5 @@ done
 cat >> $DSTFILE << EOF
 #endif
 EOF
+
+touch ../config_task.c

@@ -68,7 +68,6 @@ void fatfs_list_dir( int remove, fatfs_list_type func) {
 			c = strdup( dir->d_name);
 			func( c, remove);
 			free(c);
-
 		}
 	}
 
@@ -82,7 +81,6 @@ void unlink_file( char * filename) {
 	char tmp_filename[255];
 	sprintf(tmp_filename, "%s/%s", base_path, filename);
 
-	ESP_LOGD(TAG, "Remove : %s", tmp_filename);
 	unlink(tmp_filename);
 }
 

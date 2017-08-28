@@ -142,7 +142,7 @@ int config_save_wifi_conf( MG_WS_MESSAGE *m, char *resp) {
 void config_list( char *c, int del) {
 	char resp[255];
 	MG_WS_MESSAGE m;
-	sprintf( resp, "{\"status\":\"File:%s Del:%s\"}", c, del ? "Yes":"No");
+	sprintf( resp, "{\"status\":\"File:%s&emsp;removed:%s\"}", c, del ? "Yes":"No");
 
 	m.message = strdup(resp);
 	m.message_len = strlen(resp);
