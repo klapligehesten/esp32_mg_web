@@ -137,6 +137,20 @@ int config_save_wifi_conf( MG_WS_MESSAGE *m, char *resp) {
 }
 
 // ------------------------------------------
+// Callback from dir list
+// ------------------------------------------
+void config_list( char *c, int del) {
+	char resp[255];
+	MG_WS_MESSAGE m;
+	sprintf( resp, "{\"status\":\"File:%s Del:%s\"}", c, del ? "Yes":"No");
+
+	m.message = strdup(resp);
+	m.message_len = strlen(resp);
+	// Send to mg_task for processing in MG_EV_POLL event
+	xQueueSendToBack( broardcast_evt_queue, &m, 10 );
+}
+
+// ------------------------------------------
 // Check parms and maybe delete existing files
 // ------------------------------------------
 int config_list_del_files(MG_WS_MESSAGE *m, char *resp) {
@@ -147,16 +161,7 @@ int config_list_del_files(MG_WS_MESSAGE *m, char *resp) {
 	free(misc);
 	free(config);
 	free(root);
-	fatfs_list_dir(del);
-	if( del)
-		sprintf(resp, "{\"status\":\"All files removed!!!!\"}");
-	else
-		sprintf(resp, "{\"status\":\"Files listed on console\"}");
-
-	m->message = strdup(resp);
-	m->message_len = strlen(resp);
-	// Send to mg_task for processing in MG_EV_POLL event
-	xQueueSendToBack( broardcast_evt_queue, m, 10 );
+	fatfs_list_dir(del, config_list);
 
 	return ESP_OK;
 }

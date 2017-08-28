@@ -38,7 +38,7 @@ xQueueHandle broardcast_evt_queue;
 // ------------------------------------
 void mg_process_http_request( struct mg_connection* nc, struct http_message* message) {
 	ESP_LOGI(tag, "Enter process_http_request:%.*s", message->uri.len, message->uri.p);
-   	mg_serve_http(nc, message, s_http_server_opts);
+	mg_serve_http(nc, message, s_http_server_opts);
 }
 
 // ------------------------------------
@@ -51,12 +51,16 @@ void mg_process_http_request_config( struct mg_connection* nc, struct http_messa
 		mg_send(nc, config_html, config_html_len);
 	}
 	else if (mg_vcmp(&message->uri, "/config.css") == 0) {
-			mg_send_head(nc, 200, config_css_len, "Content-Type: text/css");
-			mg_send(nc, config_css, config_css_len);
-		}
+		mg_send_head(nc, 200, config_css_len, "Content-Type: text/css");
+		mg_send(nc, config_css, config_css_len);
+	}
 	else if (mg_vcmp(&message->uri, "/config.js") == 0) {
-			mg_send_head(nc, 200, config_js_len, "Content-Type: text/javascript");
-			mg_send(nc, config_js, config_js_len);
+		mg_send_head(nc, 200, config_js_len, "Content-Type: text/javascript");
+		mg_send(nc, config_js, config_js_len);
+	}
+	else if (mg_vcmp(&message->uri, "/upload.html") == 0) {
+		mg_send_head(nc, 200, upload_html_len, "Content-Type: text/html");
+		mg_send(nc, upload_html, upload_html_len);
 	}
 	nc->flags |= MG_F_SEND_AND_CLOSE;
 }
@@ -118,6 +122,9 @@ void mongoose_event_handler(struct mg_connection *nc, int ev, void *evData) {
 	case MG_EV_HTTP_PART_END:
 		mg_file_upload_handler(nc, ev, evData, upload_fname);
 		break;
+	case MG_EV_HTTP_MULTIPART_REQUEST_END:
+		nc->flags |= MG_F_SEND_AND_CLOSE;
+		break;
 	case MG_EV_WEBSOCKET_FRAME:
     	process_websocket_frame( nc, (struct websocket_message *)evData);
 		break;
@@ -155,6 +162,7 @@ void mongoose_task(void *data) {
 	struct mg_mgr mgr;
 	mg_mgr_init(&mgr, NULL);
 	struct mg_connection *c = mg_bind(&mgr, ":80", mongoose_event_handler);
+	// mg_register_http_endpoint(c, "/upload", mongoose_event_handler);
 	ESP_LOGD(tag, "MG task starting");
 	if (c == NULL) {
 		ESP_LOGE(tag, "No connection to wifi");

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <dirent.h>
+#include <string.h>
 #include <unistd.h>
 #include <stdbool.h>
 
@@ -54,16 +55,20 @@ void fatfs_umount() {
 // ------------------------------------------
 // List all files
 // ------------------------------------------
-void fatfs_list_dir( int remove) {
+void fatfs_list_dir( int remove, fatfs_list_type func) {
 	DIR *d;
 	struct dirent *dir;
+	char *c;
 
 	d = opendir(base_path);
 	if (d) {
 		while ((dir = readdir(d)) != NULL) {
-			ESP_LOGD(TAG, "Entry: %s", dir->d_name);
 			if( remove)
 				unlink_file( dir->d_name);
+			c = strdup( dir->d_name);
+			func( c, remove);
+			free(c);
+
 		}
 	}
 

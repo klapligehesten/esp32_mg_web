@@ -7585,7 +7585,7 @@ void mg_file_upload_handler(struct mg_connection *nc, int ev, void *ev_data,
       free(fus->lfn);
       free(fus);
       mp->user_data = NULL;
-      nc->flags |= MG_F_SEND_AND_CLOSE;
+      // nc->flags |= MG_F_SEND_AND_CLOSE;
       break;
     }
   }
