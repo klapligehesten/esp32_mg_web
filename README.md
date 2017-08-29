@@ -7,10 +7,12 @@ It's in a running state, but needs review and validations.
 2. Flash the esp32.
 3. Connect to the open wifi access point ESP32_<esp32_mac_address>
 4. Connect to 192.168.4.1 in a browser.
-5. Configure to wifi AP or Client.
-6. Upload the test html/js/css files by running ./upload <esp_ip_adr>
+5. Choose Upload and upload files in main/relay_gpio/html.
+6. Go back to Config and configure the wifi AP or Client.
 7. Test the app in a browser: http://<esp_ip_adr>/relay.html
 8. Enjoy :-)
+
+You can push the EN (gpio 0) to bring the esp32 into open AP mode. 
 
 All contributions are welcome!!
 
