@@ -38,6 +38,10 @@ void relay_gpio_task(void *pvParameter) {
 	MG_WS_MESSAGE m = { .message = NULL};
 	int rc;
 
+	for( int i = 0; i < MAX_RELAYS;i++) {
+		relays[i] = gpio_get_level(gpios[i]);
+	}
+
 	while(1) {
 
 		if(( rc = xQueueReceive(relay_gpio_evt_queue, &m, xDelay))) {
@@ -88,6 +92,7 @@ char *gen_response( int relays[]) {
 // Start the relay gpio task
 // ------------------------------------------
 void relay_gpio_start_task() {
+
 	for( int i = 0; i < MAX_RELAYS;i++) {
 		gpio_pad_select_gpio(gpios[i]);
 		gpio_set_direction(gpios[i], GPIO_MODE_OUTPUT);

@@ -28,6 +28,7 @@ void wifi_start_client( P_WIFI_CONF wifi_conf);
 void wifi_start_ap( P_WIFI_CONF wifi_conf);
 void wifi_start_open_ap();
 void init_wifi();
+int get_ip_part( char *ip_str, int num);
 
 void wifi_start_task() {
 	init_wifi();
@@ -53,6 +54,7 @@ void wifi_start_task() {
 		}
 		break;
 	}
+	free( wifi_conf);
 }
 
 void init_wifi() {
@@ -95,16 +97,23 @@ void wifi_start_open_ap() {
 	ESP_ERROR_CHECK(esp_wifi_start());
 }
 
+int get_ip_part( char *ip_str, int num) {
+	// TODO: some validations
+	char tmp_buf[20] = {'0',0};
+	strcat(tmp_buf, ip_str);
+	char * d = tmp_buf;
+	char *c = d;
+	for( int i = 0; i < num; i++) {
+		d = c+1;
+		c = strchr(d, '.');
+	}
+	if( c != NULL)
+		*(c) = '\0';
+
+	return atoi(d);
+}
+
 void wifi_start_ap( P_WIFI_CONF wifi_conf) {
-	/*
-	 * TODO: implement ip assignment
-		tcpip_adapter_dhcpc_stop(TCPIP_ADAPTER_IF_AP);
-		tcpip_adapter_ip_info_t ipInfo;
-		IP4_ADDR(&ipInfo.ip, 192,168,1,99);
-		IP4_ADDR(&ipInfo.gw, 192,168,1,1);
-		IP4_ADDR(&ipInfo.netmask, 255,255,255,0);
-		tcpip_adapter_set_ip_info(TCPIP_ADAPTER_IF_AP, &ipInfo);
-	*/
 	ESP_LOGD(tag, "Starting an access wifi point ...");
 	ap_process_req_type = mg_process_http_request;
 	ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
@@ -118,9 +127,28 @@ void wifi_start_ap( P_WIFI_CONF wifi_conf) {
 	config.ap.max_connection=5;
 	config.ap.beacon_interval=100;
 
+	tcpip_adapter_dhcps_stop(TCPIP_ADAPTER_IF_AP);
+	tcpip_adapter_ip_info_t ipInfo;
+	IP4_ADDR(&ipInfo.ip, get_ip_part(wifi_conf->ap.ipadr, 1),
+						 get_ip_part(wifi_conf->ap.ipadr, 2),
+						 get_ip_part(wifi_conf->ap.ipadr, 3),
+						 get_ip_part(wifi_conf->ap.ipadr, 4));
+	IP4_ADDR(&ipInfo.gw, get_ip_part(wifi_conf->ap.gateway, 1),
+						 get_ip_part(wifi_conf->ap.gateway, 2),
+						 get_ip_part(wifi_conf->ap.gateway, 3),
+						 get_ip_part(wifi_conf->ap.gateway, 4));
+	IP4_ADDR(&ipInfo.netmask, get_ip_part(wifi_conf->ap.netmask, 1),
+			 	 	 	 	  get_ip_part(wifi_conf->ap.netmask, 2),
+							  get_ip_part(wifi_conf->ap.netmask, 3),
+							  get_ip_part(wifi_conf->ap.netmask, 4));
+
+	tcpip_adapter_set_ip_info(TCPIP_ADAPTER_IF_AP, &ipInfo);
+	tcpip_adapter_dhcps_start(TCPIP_ADAPTER_IF_AP);
 	ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &config));
 	ESP_ERROR_CHECK(esp_wifi_start());
 }
+
+
 
 // ESP32 WiFi handler.
 esp_err_t wifi_event_handler(void *ctx, system_event_t *event) {
