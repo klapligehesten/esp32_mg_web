@@ -20,8 +20,6 @@
 
 xQueueHandle config_evt_queue;
 
-extern xQueueHandle broardcast_evt_queue;
-
 static char *tag = "config";
 
 // Private prototypes
@@ -99,15 +97,11 @@ void config_task(void *pvParameter) {
 				rc = config_list_del_files( &m, resp);
 				break;
 			}
+			free(m.message);
 		}
 		if( rc != ESP_OK ) {
 			sprintf( resp, "{\"status\":\"Error '%s' in save of configaration!!!!\"}", flash_error_str(rc));
-
-			m.message = resp;
-			m.message_len = strlen(resp);
-			// Send to mg_task for processing in MG_EV_POLL event
-			xQueueSendToBack( broardcast_evt_queue, &m, 10 );
-
+			mg_broadcast_poll(resp);
 		}
 	}
 }
@@ -123,11 +117,7 @@ int config_save_wifi_conf( MG_WS_MESSAGE *m, char *resp) {
 		if ((rc = flash_set_key(CONFIG_OPEN_WIFI_NOT_ENABLED, "{\"status\":\"no open config enabled\"}")) == ESP_OK) {
 			sprintf(resp, "{\"status\":\"Configuration saved...Rebooting\"}");
 
-			m->message = strdup(resp);
-			m->message_len = strlen(resp);
-			// Send to mg_task for processing in MG_EV_POLL event
-			xQueueSendToBack( broardcast_evt_queue, m, 10 );
-
+			mg_broadcast_poll(resp);
 			// Wait a few seconds for the ws frame to be send
 			vTaskDelay(xDelay);
 			esp_restart();
@@ -141,13 +131,8 @@ int config_save_wifi_conf( MG_WS_MESSAGE *m, char *resp) {
 // ------------------------------------------
 void config_list( char *c, int del) {
 	char resp[255];
-	MG_WS_MESSAGE m;
 	sprintf( resp, "{\"status\":\"File:%s&emsp;removed:%s\"}", c, del ? "Yes":"No");
-
-	m.message = strdup(resp);
-	m.message_len = strlen(resp);
-	// Send to mg_task for processing in MG_EV_POLL event
-	xQueueSendToBack( broardcast_evt_queue, &m, 10 );
+	mg_broadcast_poll(resp);
 }
 
 // ------------------------------------------

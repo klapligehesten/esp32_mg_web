@@ -24,10 +24,19 @@
 #include "gpio_task.h"
 #include "relay_task.h"
 
+static char *tag = "main";
+
 SemaphoreHandle_t flashSemaphore = NULL;
 
 void init_shared_resource_sem() {
 	flashSemaphore = xSemaphoreCreateMutex();
+}
+
+void info_task(void *pvParameter) {
+	while(1) {
+		ESP_LOGD(tag, "main free heap size: %d, min. %d", esp_get_free_heap_size(), esp_get_minimum_free_heap_size());
+		vTaskDelay(10000 / portTICK_PERIOD_MS);
+	}
 }
 
 // ------------------------------------------
@@ -42,6 +51,8 @@ int app_main(void) {
 	relay_gpio_start_task();
 	wifi_start_task();
 //	utils_show_chip_info();
+	xTaskCreate( info_task, "info_task", 2048, NULL, 10, NULL);
+
 	return 0;
 
 }

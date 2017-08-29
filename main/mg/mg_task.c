@@ -7,6 +7,7 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>
 #include <freertos/task.h>
+#include <esp_system.h>
 
 #include <config_html.h>
 #include <config_task.h>
@@ -16,6 +17,7 @@
 void mongoose_event_handler( struct mg_connection *nc, int ev, void *evData);
 struct mg_str upload_fname(struct mg_connection *nc, struct mg_str fname);
 void process_websocket_frame( struct mg_connection *nc, struct websocket_message *evData);
+void mg_broadcast_message( struct mg_connection *nc, char *message, int len);
 
 // This pointer either points to config html page
 // processing or to process_http_request for 'normal'
@@ -32,7 +34,6 @@ extern xQueueHandle relay_gpio_evt_queue;
 
 xQueueHandle broardcast_evt_queue;
 
-
 // ------------------------------------
 // Process MG_EV_HTTP_REQUEST event
 // ------------------------------------
@@ -46,7 +47,7 @@ void mg_process_http_request( struct mg_connection* nc, struct http_message* mes
 // ------------------------------------
 void mg_process_http_request_config( struct mg_connection* nc, struct http_message* message) {
 	// ESP_LOGI(tag, "Enter process_http_request_config");
-	if (mg_vcmp(&message->uri, "/") == 0) {
+	if ((mg_vcmp(&message->uri, "/" ) == 0 || mg_vcmp(&message->uri, "/config.html" ) == 0)) {
 		mg_send_head(nc, 200, config_html_len, "Content-Type: text/html");
 		mg_send(nc, config_html, config_html_len);
 	}
@@ -108,11 +109,12 @@ struct mg_str upload_fname(struct mg_connection *nc, struct mg_str fname) {
 	return c;
 }
 
-
 // ---------------------------------
 // Mongoose event handler.
 // ---------------------------------
 void mongoose_event_handler(struct mg_connection *nc, int ev, void *evData) {
+//	ESP_LOGD(tag, "enter free heap size: %d, min. %d", esp_get_free_heap_size(), esp_get_minimum_free_heap_size());
+
 	switch (ev) {
 	case MG_EV_HTTP_REQUEST:
 		mg_process_http_request_ptr( nc, (struct http_message*) evData);
@@ -137,6 +139,17 @@ void mongoose_event_handler(struct mg_connection *nc, int ev, void *evData) {
 		break;
 		}
 	}
+//	ESP_LOGD(tag, "exit free heap size: %d, min. %d", esp_get_free_heap_size(), esp_get_minimum_free_heap_size());
+}
+
+// ------------------------------------------
+// Send to mg_task for processing in MG_EV_POLL event
+// ------------------------------------------
+void mg_broadcast_poll( char* resp) {
+	MG_WS_MESSAGE m;
+	m.message = strdup(resp);
+	m.message_len = strlen(resp);
+	xQueueSendToBack(broardcast_evt_queue, &m, 10);
 }
 
 // ------------------------------------------
@@ -162,7 +175,6 @@ void mongoose_task(void *data) {
 	struct mg_mgr mgr;
 	mg_mgr_init(&mgr, NULL);
 	struct mg_connection *c = mg_bind(&mgr, ":80", mongoose_event_handler);
-	// mg_register_http_endpoint(c, "/upload", mongoose_event_handler);
 	ESP_LOGD(tag, "MG task starting");
 	if (c == NULL) {
 		ESP_LOGE(tag, "No connection to wifi");
@@ -185,9 +197,7 @@ void mg_start_task( mg_process_http_request_type func) {
 	mg_process_http_request_ptr = func;
 	memset(&s_http_server_opts, 0, sizeof(s_http_server_opts));
 	s_http_server_opts.document_root = base_path;
-	// INVESTIGATE: 2 below lines does nothong on fatfs ?????
-	s_http_server_opts.index_files = "index.html";
-	s_http_server_opts.enable_directory_listing = "yes";
+	s_http_server_opts.index_files = NULL; // Don't work
 
 	config_start_task();
 	broardcast_evt_queue = xQueueCreate(10, sizeof(MG_WS_MESSAGE));

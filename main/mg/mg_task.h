@@ -22,7 +22,7 @@ typedef struct {
 void mg_process_http_request( struct mg_connection* nc, struct http_message* message);
 void mg_process_http_request_config( struct mg_connection* nc, struct http_message* message);
 void mg_start_task(mg_process_http_request_type func);
-void mg_broadcast_message( struct mg_connection *nc, char *message, int len);
+void mg_broadcast_poll( char* resp);
 
 void mg_stop_task();
 
