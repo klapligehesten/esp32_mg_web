@@ -25,6 +25,7 @@ static char *tag = "config";
 // Private prototypes
 int config_list_del_files(MG_WS_MESSAGE *m, char *);
 int config_save_wifi_conf( MG_WS_MESSAGE *m, char *);
+int config_get();
 
 // ------------------------------------------
 // config get configuration
@@ -50,6 +51,7 @@ P_WIFI_CONF config_get_wifi_conf() {
 				free(cli);
 
 				wifi_conf->ap.enabled = json_get_int(ap, "enabled", false);
+				wifi_conf->ap.hostname = json_get_str(ap, "hostname", "foo");
 				wifi_conf->ap.ssid = json_get_str(ap, "ssid", "foo");
 				wifi_conf->ap.passwd = json_get_str(ap, "passwd", "foo");
 				wifi_conf->ap.ipadr = json_get_str(ap, "ipadr", "foo");
@@ -92,6 +94,11 @@ void config_task(void *pvParameter) {
 				ESP_LOGI( tag, "CONFIG save wifi event received");
 				rc = config_save_wifi_conf( &m, resp);
 				break;
+			case MG_ACTION_CONFIG_GET_WIFI:
+				// Get config
+				ESP_LOGI( tag, "CONFIG get wifi event received");
+				rc = config_get( );
+				break;
 			case MG_ACTION_CONFIG_DEL_FILES:
 				ESP_LOGI( tag, "CONFIG list/del files event received");
 				rc = config_list_del_files( &m, resp);
@@ -104,6 +111,20 @@ void config_task(void *pvParameter) {
 			mg_broadcast_poll(resp);
 		}
 	}
+}
+
+// ------------------------------------------
+// Get wifi config
+// ------------------------------------------
+int config_get() {
+	int rc;
+	char *buffer;
+
+	if ((rc = flash_get_key(CONFIG_WIFI_PARAMETERS, &buffer)) == ESP_OK) {
+		mg_broadcast_poll(buffer);
+	}
+
+	return rc;
 }
 
 // ------------------------------------------
@@ -156,5 +177,5 @@ int config_list_del_files(MG_WS_MESSAGE *m, char *resp) {
 // ------------------------------------------
 void config_start_task() {
 	config_evt_queue = xQueueCreate(10, sizeof(MG_WS_MESSAGE));
-	xTaskCreate(config_task, "config_task", 4096, NULL, 10, NULL);
+	xTaskCreate(config_task, "config_task", 8192, NULL, 10, NULL);
 }

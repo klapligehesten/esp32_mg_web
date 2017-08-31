@@ -25,14 +25,32 @@ void mg_broadcast_message( struct mg_connection *nc, char *message, int len);
 mg_process_http_request_type mg_process_http_request_ptr;
 
 static char *tag = "mg_task";
-static int mg_cont;
+
+
+#define MG_TASK_STATE_STOP 1
+#define MG_TASK_STATE_RUNNING 2
+static int mg_task_state = MG_TASK_STATE_STOP;
+
 static struct mg_serve_http_opts s_http_server_opts;
 
 extern const char *base_path;
 extern xQueueHandle config_evt_queue;
 extern xQueueHandle relay_gpio_evt_queue;
-
 xQueueHandle broardcast_evt_queue;
+
+typedef struct {
+	char *cmd;
+	int action;
+	xQueueHandle *evt_queue;
+} QUE_EVENTS_T, *P_QUE_EVENTS_T;
+
+#define MAX_QUE_EVENTS 4
+QUE_EVENTS_T que_events_t[MAX_QUE_EVENTS] = {
+	{"config", MG_ACTION_CONFIG_WIFI, &config_evt_queue},
+	{"config_get", MG_ACTION_CONFIG_GET_WIFI, &config_evt_queue},
+	{"config_del_files", MG_ACTION_CONFIG_DEL_FILES, &config_evt_queue},
+	{"gpio_relays", MG_ACTION_RELAY_GPIO_TOGGLE, &relay_gpio_evt_queue}
+};
 
 // ------------------------------------
 // Process MG_EV_HTTP_REQUEST event
@@ -59,10 +77,6 @@ void mg_process_http_request_config( struct mg_connection* nc, struct http_messa
 		mg_send_head(nc, 200, config_js_len, "Content-Type: text/javascript");
 		mg_send(nc, config_js, config_js_len);
 	}
-	else if (mg_vcmp(&message->uri, "/upload.html") == 0) {
-		mg_send_head(nc, 200, upload_html_len, "Content-Type: text/html");
-		mg_send(nc, upload_html, upload_html_len);
-	}
 	nc->flags |= MG_F_SEND_AND_CLOSE;
 }
 
@@ -72,6 +86,7 @@ void mg_process_http_request_config( struct mg_connection* nc, struct http_messa
 void process_websocket_frame( struct mg_connection *nc, struct websocket_message *evData) {
 	ESP_LOGD(tag, "WS_EV_WEBSOCKET_FRAME");
 	MG_WS_MESSAGE m;
+	int found = 0;
 
 	m.message = strndup( (const char *)evData->data, evData->size);
 	m.flags = evData->flags;
@@ -79,16 +94,15 @@ void process_websocket_frame( struct mg_connection *nc, struct websocket_message
 	cJSON *request_json = cJSON_Parse(m.message);
 	cJSON* item = cJSON_GetArrayItem(request_json, 0);
 	if( item != NULL) {
-		if( strcmp(item->string, "config") == 0) {
-			m.action = MG_ACTION_CONFIG_WIFI;
-			xQueueSendToBack( config_evt_queue, &m, 10 );
-		} else if( strcmp(item->string, "config_del_files") == 0) {
-			m.action = MG_ACTION_CONFIG_DEL_FILES;
-			xQueueSendToBack( config_evt_queue, &m, 10 );
-		} else if( strcmp(item->string, "gpio_relays") == 0) {
-			m.action = MG_ACTION_RELAY_GPIO_TOGGLE;
-			xQueueSendToBack( relay_gpio_evt_queue, &m, 10 );
-		} else {
+		for( int i = 0; i < MAX_QUE_EVENTS; i++) {
+			if( strcmp(item->string, que_events_t[i].cmd) == 0) {
+				m.action = que_events_t[i].action;
+				xQueueSendToBack( *que_events_t[i].evt_queue, &m, 10 );
+				found = 1;
+				break;
+			}
+		}
+		if( !found) {
 			ESP_LOGI(tag, "processing %s service not implemented yet :-)", item->string);
 		}
 	}
@@ -158,7 +172,7 @@ void mg_broadcast_poll( char* resp) {
 void mg_broadcast_message( struct mg_connection *nc, char *message, int len) {
 	struct mg_connection *c;
 	// Instead of mg_next(.. i've rewritten this to show
-	// witch line 'panics' if sothing goes wrong
+	// witch line 'panics' if something goes wrong
 	c = nc->mgr->active_connections;
 	while(1){
 		mg_send_websocket_frame(c, WEBSOCKET_OP_TEXT, message, len);
@@ -181,10 +195,10 @@ void mongoose_task(void *data) {
 		vTaskDelete(NULL);
 		return;
 	}
+	mg_task_state = MG_TASK_STATE_RUNNING;
 	mg_set_protocol_http_websocket(c);
 
-	mg_cont = 1;
-	while (mg_cont) {
+	while (mg_task_state == MG_TASK_STATE_RUNNING) {
 		mg_mgr_poll(&mgr, 1000);
 	}
 	mg_mgr_free(&mgr);
@@ -194,6 +208,10 @@ void mongoose_task(void *data) {
 // Start mongoose task pinned to one cpu
 // -------------------------------------
 void mg_start_task( mg_process_http_request_type func) {
+	if( mg_task_state == MG_TASK_STATE_RUNNING) {
+		ESP_LOGD(tag, "MG task running");
+		return;
+	}
 	mg_process_http_request_ptr = func;
 	memset(&s_http_server_opts, 0, sizeof(s_http_server_opts));
 	s_http_server_opts.document_root = base_path;
@@ -208,6 +226,7 @@ void mg_start_task( mg_process_http_request_type func) {
 // Stop mongoose task
 // ---------------------------------
 void mg_stop_task() {
-	mg_cont = 0;
+	if( mg_task_state == MG_TASK_STATE_RUNNING)
+		mg_task_state = MG_TASK_STATE_STOP;
 }
 

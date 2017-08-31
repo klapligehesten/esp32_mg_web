@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include <esp_err.h>
+#include <esp_log.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/portmacro.h>
 #include <freertos/projdefs.h>
@@ -27,8 +28,7 @@ esp_err_t flash_get_key( char *key, char **value) {
     	if( (rc = nvs_open( DEFAULT_NAMESPACE, NVS_READWRITE, &my_handle)) == ESP_OK) {
 
 			if( (rc = nvs_get_str( my_handle, key, tmp_val, &len)) == ESP_OK) {
-		    	*value = (char*) malloc( len+1);
-		    	strcpy( *value, tmp_val);
+				*value = strdup( tmp_val);
 			}
 	    	nvs_commit(my_handle);
 	    	nvs_close(my_handle);

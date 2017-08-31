@@ -3,6 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<!-- meta http-equiv="Content-Security-Policy" content="connect-src 'self'" -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Config</title>
   	<link rel="stylesheet" href="config.css">
   	<script src="config.js"></script>
@@ -23,6 +24,7 @@
 		<table>
 			<tbody>
 			<tr><td>AP enabled:</td><td><input class="cbox ap" id="enabled_ap" type="checkbox"></td></tr>
+			<tr><td>Hostname:</td><td><input type="text" value="esp32_ap" id="hostname" /></td></tr>
 			<tr><td>SSID:</td><td><input type="text" value="ESP32_AP" id="ssid_ap" /></td></tr>
 			<tr><td>Password:</td><td><input type="password" value="" id="passwd_ap" pattern=".{8,12}" required title="8 to 12 characters"/></td></tr>
 			<tr><td>IPv4 Address:</td><td><input type="text" value="192.168.4.1" id="ipadr_ap" /></td></tr>
@@ -33,7 +35,26 @@
 		<hr>
 		<table>
 			<tbody>
-			<tr><td><button type="submit">Save and reboot</button></td><td><a href="upload.html">Upload files</a></td></tr>
+			<tr><td><button type="submit">Save and reboot</button></td></tr>
+			</tbody>
+		</table>
+		</form>
+		<form id="config-form" action="#" method="post">
+		<hr>
+		<table>
+			<tbody>
+			<tr>
+			<td><button type="button" id="list_rem">List/Remove</button></td>
+			<td>Remove files:</td><td><input id="del_fat_files" type="checkbox"></td>
+			</tr>
+			</tbody>
+		</table>
+		</form>
+		<hr>
+		<form method="post" action="/" enctype="multipart/form-data">
+		<table>
+			<tbody>
+			<tr><td><input type="file" id="files" name="files[]" multiple /></td><td><input type="submit" value="Upload"/></td></tr>
 			</tbody>
 		</table>
 		</form>

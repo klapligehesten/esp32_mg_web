@@ -13,6 +13,7 @@
 #include "freertos/event_groups.h"
 #include <freertos/semphr.h>
 #include <esp_system.h>
+#include <mdns_a.h>
 
 #include "sdkconfig.h"
 
@@ -49,9 +50,10 @@ int app_main(void) {
 	fatfs_mount();
 	gpio_start_task();
 	relay_gpio_start_task();
-	wifi_start_task();
+	wifi_start();
+//	mdns_advertise("esp32", "rsp32_inst", "esp32_relay");
 //	utils_show_chip_info();
-	xTaskCreate( info_task, "info_task", 2048, NULL, 10, NULL);
+//	xTaskCreate( info_task, "info_task", 2048, NULL, 10, NULL);
 
 	return 0;
 

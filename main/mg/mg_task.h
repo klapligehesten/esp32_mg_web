@@ -7,8 +7,9 @@
 typedef void (*mg_process_http_request_type)(struct mg_connection *, struct http_message *);
 
 #define MG_ACTION_CONFIG_WIFI 1
-#define MG_ACTION_CONFIG_DEL_FILES 2
-#define MG_ACTION_RELAY_GPIO_TOGGLE 3
+#define MG_ACTION_CONFIG_GET_WIFI 2
+#define MG_ACTION_CONFIG_DEL_FILES 3
+#define MG_ACTION_RELAY_GPIO_TOGGLE 4
 
 typedef struct {
 	int  flags;

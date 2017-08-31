@@ -12,6 +12,7 @@ typedef struct {
 
 typedef struct {
 	int  enabled;
+	char *hostname;
 	char *ssid;
 	char *passwd;
 	char *ipadr;
