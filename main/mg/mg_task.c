@@ -9,9 +9,10 @@
 #include <freertos/task.h>
 #include <esp_system.h>
 
-#include <config_html.h>
-#include <config_task.h>
-#include <mg_task.h>
+#include "config/config_html.h"
+#include "config/config_task.h"
+
+#include "mg/mg_task.h"
 
 // --- internal prototypes ---
 void mongoose_event_handler( struct mg_connection *nc, int ev, void *evData);
@@ -23,6 +24,8 @@ void mg_broadcast_message( struct mg_connection *nc, char *message, int len);
 // processing or to process_http_request for 'normal'
 // website processing from flash fat file system
 mg_process_http_request_type mg_process_http_request_ptr;
+
+SemaphoreHandle_t uploadSemaphore = NULL;
 
 static char *tag = "mg_task";
 
@@ -134,9 +137,15 @@ void mongoose_event_handler(struct mg_connection *nc, int ev, void *evData) {
 		mg_process_http_request_ptr( nc, (struct http_message*) evData);
 		break;
 	case MG_EV_HTTP_PART_BEGIN:
+		xSemaphoreTake( uploadSemaphore, ( TickType_t ) 10 );
+		mg_file_upload_handler(nc, ev, evData, upload_fname);
+		break;
 	case MG_EV_HTTP_PART_DATA:
+		mg_file_upload_handler(nc, ev, evData, upload_fname);
+		break;
 	case MG_EV_HTTP_PART_END:
 		mg_file_upload_handler(nc, ev, evData, upload_fname);
+		xSemaphoreGive( uploadSemaphore );
 		break;
 	case MG_EV_HTTP_MULTIPART_REQUEST_END:
 		nc->flags |= MG_F_SEND_AND_CLOSE;
@@ -146,9 +155,14 @@ void mongoose_event_handler(struct mg_connection *nc, int ev, void *evData) {
 		break;
 	case MG_EV_POLL: {
 		MG_WS_MESSAGE p;
+
 		if(xQueueReceive(broardcast_evt_queue, &p, 0) == pdPASS) {
-			mg_broadcast_message(nc, p.message, p.message_len);
-			free(p.message);
+			// Don't broadcast when uploading
+		    if( xSemaphoreTake( uploadSemaphore, ( TickType_t ) 100 ) == pdTRUE ) {
+		    	mg_broadcast_message(nc, p.message, p.message_len);
+		    	free(p.message);
+		    }
+			xSemaphoreGive( uploadSemaphore );
 		}
 		break;
 		}
@@ -212,6 +226,7 @@ void mg_start_task( mg_process_http_request_type func) {
 		ESP_LOGD(tag, "MG task running");
 		return;
 	}
+	uploadSemaphore = xSemaphoreCreateMutex();
 	mg_process_http_request_ptr = func;
 	memset(&s_http_server_opts, 0, sizeof(s_http_server_opts));
 	s_http_server_opts.document_root = base_path;

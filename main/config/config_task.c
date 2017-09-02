@@ -12,21 +12,24 @@
 #include <freertos/queue.h>
 #include <freertos/task.h>
 
-#include <fatfs.h>
-#include <flash.h>
-#include <config_task.h>
-#include <mg_task.h>
-#include <utils_json.h>
+#include "fatfs/fatfs.h"
+#include "flash/flash.h"
+#include "mg/mg_task.h"
+#include "utils/utils_json.h"
+
+#include "config/config_task.h"
 
 xQueueHandle config_evt_queue;
 
 static char *tag = "config";
 
-// Private prototypes
+// Local prototypes
+void config_task(void *pvParameter);
 int config_list_del_files(MG_WS_MESSAGE *m, char *);
 int config_save_wifi_conf( MG_WS_MESSAGE *m, char *);
 int config_get();
 
+// void (*functions[256])();
 // ------------------------------------------
 // config get configuration
 // ------------------------------------------
@@ -78,6 +81,17 @@ P_WIFI_CONF config_get_wifi_conf() {
 	return wifi_conf;
 }
 
+// ------------------------------------------
+// Start the gpio task
+// ------------------------------------------
+void config_start_task() {
+	config_evt_queue = xQueueCreate(10, sizeof(MG_WS_MESSAGE));
+	xTaskCreate(config_task, "config_task", 8192, NULL, 10, NULL);
+}
+
+// ============================================================================
+// Local functions
+// ============================================================================
 // ------------------------------------------
 // config task handle
 // ------------------------------------------
@@ -172,10 +186,3 @@ int config_list_del_files(MG_WS_MESSAGE *m, char *resp) {
 	return ESP_OK;
 }
 
-// ------------------------------------------
-// Start the gpio task
-// ------------------------------------------
-void config_start_task() {
-	config_evt_queue = xQueueCreate(10, sizeof(MG_WS_MESSAGE));
-	xTaskCreate(config_task, "config_task", 8192, NULL, 10, NULL);
-}

@@ -39,6 +39,32 @@ input:focus + .slider { box-shadow: 0 0 1px #af4141;}
 input:checked + .slider:before { -webkit-transform: translateX(26px); -ms-transform: translateX(26px);
   transform: translateX(110px);}
 
+
+/* The radioswitch - the box around the radiobox */
+.radioswitch { position: relative; display: inline-block; width: 160px; height: 48px;}
+
+/* Hide default HTML checkbox */
+.radioswitch input {display:none;}
+
+/* The slider */
+.radioslider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #008000;
+  -webkit-transition: .4s; transition: .4s;}
+
+.radioslider:before { position: absolute; content:''; color:black; height: 41px; width: 41px; left: 5px;
+  bottom: 4px; background-color: #ffffff; -webkit-transition: .4s; transition: .4s;}
+
+.radioslider.round { border-radius: 54px;}
+
+.radioslider.round:before { border-radius: 50%;}
+
+input:checked + .radioslider { background-color: #af4141;}
+
+input:focus + .radioslider { box-shadow: 0 0 1px #af4141;}
+
+input:checked + .radioslider:before { -webkit-transform: translateX(26px); -ms-transform: translateX(26px);
+  transform: translateX(110px);}
+
+
 @-webkit-keyframes blink {
     10% {opacity: 1;}
     50% {opacity: 0;}

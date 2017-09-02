@@ -9,7 +9,7 @@
 #include <esp_vfs_fat.h>
 #include <wear_levelling.h>
 
-#include "fatfs.h"
+#include "fatfs/fatfs.h"
 
 static const char *TAG = "fatfs";
 

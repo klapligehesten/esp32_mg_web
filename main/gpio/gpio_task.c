@@ -9,9 +9,10 @@
 #include <freertos/task.h>
 #include <rom/gpio.h>
 
-#include <flash.h>
-#include <config_task.h>
-#include "gpio_task.h"
+#include "flash/flash.h"
+#include "config/config_task.h"
+
+#include "gpio/gpio_task.h"
 
 static char *tag = "gpio_task";
 xQueueHandle gpio_evt_queue;

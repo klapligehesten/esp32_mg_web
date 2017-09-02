@@ -3,7 +3,6 @@
 
 #include <mongoose.h>
 
-
 typedef void (*mg_process_http_request_type)(struct mg_connection *, struct http_message *);
 
 #define MG_ACTION_CONFIG_WIFI 1

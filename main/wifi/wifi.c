@@ -1,5 +1,3 @@
-#include "wifi.h"
-
 #include <stdlib.h>
 #include <string.h>
 
@@ -12,10 +10,13 @@
 #include <nvs.h>
 #include <tcpip_adapter.h>
 
-#include <utils.h>
-#include <config_task.h>
-#include <flash.h>
-#include <mg_task.h>
+#include "utils/utils.h"
+#include "config/config_task.h"
+#include "flash/flash.h"
+#include "mg/mg_task.h"
+
+#include "wifi/wifi.h"
+
 
 static char *tag = "wifi_tasks";
 
@@ -76,6 +77,7 @@ void init_wifi() {
 	wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
 	ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 	ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
+//	esp_wifi_set_ps(WIFI_PS_MODEM);
 }
 
 // ------------------------------------------

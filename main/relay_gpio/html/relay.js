@@ -7,8 +7,8 @@ window.onload = function() {
 	var eye = document.getElementById("eye");
 
 	// Create a new WebSocket.
-	var socket  = new WebSocket('ws://' + location.host);
-	//var socket  = new WebSocket('ws://172.16.1.78');
+	// var socket  = new WebSocket('ws://' + location.host);
+	var socket  = new WebSocket('ws://172.16.1.78');
 
 	socket.onerror = function(error) {
 		console.log('WebSocket Error: ' + error);
@@ -39,7 +39,8 @@ window.onload = function() {
   			var cbox = {};
   			var rel = {};
 			cbox[this.id] = this.checked;
-			cbox.no = parseInt(this.alt);
+			cbox.no = parseInt(this.dataset.rno);
+			cbox.rtype = parseInt(this.dataset.rtype);
   		  	rel.gpio_relays = cbox;
   		  	socket.send( JSON.stringify(rel));
   		};

@@ -8,22 +8,28 @@
  */
 
 #include <esp_log.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/event_groups.h"
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+#include <freertos/event_groups.h>
 #include <freertos/semphr.h>
 #include <esp_system.h>
-#include <mdns_a.h>
+#include <nvs_flash.h>
 
 #include "sdkconfig.h"
 
-#include <nvs_flash.h>
-#include <wifi.h>
-#include "mg_task.h"
-#include "fatfs.h"
-#include "utils.h"
-#include "gpio_task.h"
-#include "relay_task.h"
+#include "utils/mdns_a.h"
+#include "wifi/wifi.h"
+#include "mg/mg_task.h"
+#include "fatfs/fatfs.h"
+#include "utils/utils.h"
+#include "gpio/gpio_task.h"
+
+// Modules included
+#define RELAY_GPIO
+
+#ifdef RELAY_GPIO
+	#include "relay_gpio/relay_task.h"
+#endif
 
 static char *tag = "main";
 
@@ -49,8 +55,12 @@ int app_main(void) {
 	init_shared_resource_sem();
 	fatfs_mount();
 	gpio_start_task();
+#ifdef RELAY_GPIO
 	relay_gpio_start_task();
+#endif
 	wifi_start();
+
+// Just testing for now
 //	mdns_advertise("esp32", "rsp32_inst", "esp32_relay");
 //	utils_show_chip_info();
 //	xTaskCreate( info_task, "info_task", 2048, NULL, 10, NULL);
