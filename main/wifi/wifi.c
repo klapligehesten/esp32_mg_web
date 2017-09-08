@@ -43,27 +43,32 @@ void wifi_start() {
 	P_WIFI_CONF wifi_conf;
 	init_wifi();
 	wifi_conf = config_get_wifi_conf();
-	switch( flash_key_exists(CONFIG_OPEN_WIFI_NOT_ENABLED)) {
-	case ESP_ERR_NVS_NOT_FOUND:
-		ESP_LOGD(tag, "config_get_conf_enabled() = ESP_ERR_NVS_NOT_FOUND");
-		wifi_start_open_ap();
-		break;
-	case ESP_OK:
-		ESP_LOGD(tag, "config_get_conf_enabled() = ESP_OK");
-		if( wifi_conf != NULL) {
-			if( wifi_conf->cli.enabled == 1 && wifi_conf->ap.enabled == 1)
-				wifi_start_ap_client(wifi_conf);
-			else if( wifi_conf->cli.enabled == 1)
-				wifi_start_client( wifi_conf);
-			else if( wifi_conf->ap.enabled == 1)
-				wifi_start_ap(wifi_conf);
-			else
-				wifi_start_open_ap();
-		}
-		else {
+	if(wifi_conf != NULL) {
+		switch( flash_key_exists(CONFIG_OPEN_WIFI_NOT_ENABLED)) {
+		case ESP_ERR_NVS_NOT_FOUND:
+			ESP_LOGD(tag, "config_get_conf_enabled() = ESP_ERR_NVS_NOT_FOUND");
 			wifi_start_open_ap();
+			break;
+		case ESP_OK:
+			ESP_LOGD(tag, "config_get_conf_enabled() = ESP_OK");
+			if( wifi_conf != NULL) {
+				if( wifi_conf->cli.enabled == 1 && wifi_conf->ap.enabled == 1)
+					wifi_start_ap_client(wifi_conf);
+				else if( wifi_conf->cli.enabled == 1)
+					wifi_start_client( wifi_conf);
+				else if( wifi_conf->ap.enabled == 1)
+					wifi_start_ap(wifi_conf);
+				else
+					wifi_start_open_ap();
+			}
+			else {
+				wifi_start_open_ap();
+			}
+			break;
 		}
-		break;
+	}
+	else {
+		wifi_start_open_ap();
 	}
 	free( wifi_conf);
 }

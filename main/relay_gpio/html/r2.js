@@ -7,8 +7,8 @@ window.onload = function() {
 	var eye = document.getElementById("eye");
 
 	// Create a new WebSocket.
-	// var socket  = new WebSocket('ws://' + location.host);
-	var socket  = new WebSocket('ws://172.16.1.78');
+	var socket  = new WebSocket('ws://' + location.host);
+	//var socket  = new WebSocket('ws://172.16.1.78');
 
 	socket.onerror = function(error) {
 		console.log('WebSocket Error: ' + error);
@@ -27,7 +27,7 @@ window.onload = function() {
 		for (var i = 0; i < chkbox.length; i++) {
 			chkbox[i].checked = obj['relay_' + i];
 		}
-		// messagesList.innerHTML = '<li class="received"><span>Received:</span>' + message + '</li>';
+		messagesList.innerHTML = '<li class="received"><span>Received:</span>' + message + '</li>';
 	};
 
 	socket.onclose = function(event) {
@@ -42,6 +42,7 @@ window.onload = function() {
 			cbox.no = parseInt(this.dataset.rno);
 			cbox.rtype = parseInt(this.dataset.rtype);
   		  	rel.gpio_relays = cbox;
+  			console.log('Send: ' + JSON.stringify(rel));
   		  	socket.send( JSON.stringify(rel));
   		};
   	}

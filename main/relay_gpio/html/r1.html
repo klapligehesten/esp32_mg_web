@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- meta http-equiv="Content-Security-Policy" content="connect-src 'self'"-->
+  <title>Relays</title>
+  <link rel="stylesheet" href="r1.css">
+  <script src="r1.js"></script>
+</head>
+<body>
+	<div id="parent">
+	   <h3>Relays<img src="eye-white.png" id="eye"/></h3>
+       <input class="relay" type="radio" data-rno="0" data-rtype="0" id="relay_0" name="relay_0" checked><label class="tab label-off" for="relay_0">O</label>
+       <input type="radio" id="relay_1_2" name="relay_0" disabled><label class="tab label-text" for="relay_1_2">Relay 1</label>
+       <input class="relay" type="radio" data-rno="0" data-rtype="0" id="relay_1" name="relay_0"><label class="tab label-on" for="relay_1">I</label>
+	   <br>
+       <input class="relay" type="radio" data-rno="1" data-rtype="0" id="relay_2" name="relay_1" checked><label class="tab label-off" for="relay_2">O</label>
+       <input type="radio" id="relay_2_2" name="relay_1" disabled><label class="tab label-text" for="relay_2_2">Relay 2</label>
+       <input class="relay" type="radio" data-rno="1" data-rtype="0" id="relay_3" name="relay_1"><label class="tab label-on" for="relay_3">I</label>
+	   <br>
+       <input class="relay" type="radio" data-rno="2" data-rtype="0" id="relay_4" name="relay_2" checked><label class="tab label-off" for="relay_4">O</label>
+       <input type="radio" id="relay_3_2" name="relay_2" disabled><label class="tab label-text" for="relay_3_2">Relay 3</label>
+       <input class="relay" type="radio" data-rno="2" data-rtype="0" id="relay_5" name="relay_2"><label class="tab label-on" for="relay_5">I</label>
+	   <br>
+       <input class="relay" type="radio" data-rno="3" data-rtype="1" id="relay_6" name="relay_3" checked><label class="tab label-off" for="relay_6">O</label>
+       <input type="radio" id="relay_4_2" name="relay_3" disabled><label class="tab label-text" for="relay_4_2">Relay 4</label>
+       <input class="relay" type="radio" data-rno="3" data-rtype="1" id="relay_7" name="relay_3"><label class="tab label-on" for="relay_7">I</label>
+	   <br>
+       <input class="relay" type="radio" data-rno="4" data-rtype="1" id="relay_8" name="relay_4" checked><label class="tab label-off" for="relay_8">O</label>
+       <input type="radio" id="relay_5_2" name="relay_4" disabled><label class="tab label-text" for="relay_5_2">Relay 5</label>
+       <input class="relay" type="radio" data-rno="4" data-rtype="1" id="relay_9" name="relay_4"><label class="tab label-on" for="relay_9">I</label>
+	   <ul id="messages"></ul>
+	</div> 
+ </body>
+</html>

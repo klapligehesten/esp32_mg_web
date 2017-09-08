@@ -22,6 +22,7 @@
 #include "mg/mg_task.h"
 #include "fatfs/fatfs.h"
 #include "utils/utils.h"
+#include "flash/flash.h"
 #include "gpio/gpio_task.h"
 
 // Modules included
@@ -52,6 +53,7 @@ void info_task(void *pvParameter) {
 int app_main(void) {
 
 	nvs_flash_init();
+	flash_init_user_space("myspace");
 	init_shared_resource_sem();
 	fatfs_mount();
 	gpio_start_task();

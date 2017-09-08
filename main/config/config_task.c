@@ -67,14 +67,16 @@ P_WIFI_CONF config_get_wifi_conf() {
 			}
 			else {
 				ESP_LOGD( tag, "config | cli | ap item is NULL");
+				wifi_conf = NULL;
 			}
 		}
 		else {
 			ESP_LOGD( tag, "root item is NULL");
+			wifi_conf = NULL;
 		}
 	}
 	else {
-		ESP_LOGD( tag, "flash_get_key returned: %d", rc);
+		ESP_LOGD( tag, "flash_get_key returned: %x", rc);
 	}
 	free(buffer);
 
@@ -121,7 +123,7 @@ void config_task(void *pvParameter) {
 			free(m.message);
 		}
 		if( rc != ESP_OK ) {
-			sprintf( resp, "{\"status\":\"Error '%s' in save of configaration!!!!\"}", flash_error_str(rc));
+			sprintf( resp, "{\"status\":\"Error '%x' in save of configaration!!!!\"}", rc);
 			mg_broadcast_poll(resp);
 		}
 	}

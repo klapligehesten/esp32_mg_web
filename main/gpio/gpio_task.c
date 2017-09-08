@@ -19,7 +19,7 @@ xQueueHandle gpio_evt_queue;
 
 static void IRAM_ATTR gpio_isr_handler(void* arg);
 void gpio_task(void *pvParameter);
-void button_setup( gpio_config_t *io_conf, int pin, int mode);
+void gpio_reset_setup( gpio_config_t *io_conf, int pin, int mode);
 
 // ------------------------------------------
 // gpio interrupt handler
@@ -35,7 +35,7 @@ static void IRAM_ATTR gpio_isr_handler(void* arg) {
 void gpio_task(void *pvParameter) {
     gpio_config_t io_conf;
    	uint32_t io_num;
-	button_setup(&io_conf, GPIO_NUM_0, GPIO_MODE_INPUT);
+	gpio_reset_setup(&io_conf, GPIO_NUM_0, GPIO_MODE_INPUT);
 	while(1) {
 		if(xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
 			ESP_LOGI(tag, "GPIO[%d] intr, val: %d", io_num, gpio_get_level(io_num));
@@ -86,7 +86,7 @@ void gpio_set_pin( gpio_config_t *io_conf, int pin, int mode) {
 // ------------------------------------------
 // initialize the button
 // ------------------------------------------
-void button_setup( gpio_config_t *io_conf, int pin, int mode) {
+void gpio_reset_setup( gpio_config_t *io_conf, int pin, int mode) {
 
 	//create a queue to handle gpio event from isr
 	gpio_evt_queue = xQueueCreate(10, sizeof(uint32_t));
